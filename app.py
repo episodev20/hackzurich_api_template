@@ -26,21 +26,21 @@ def check(s3_client, bucket, key):
 
 def get_report(event, context):
     # go to S3 and check if report with such name exists
-    sequence = event["sequence"]
-    filename = hashlib.sha1(sequence.encode()).hexdigest()
+    try:
+        sequence = event["sequence"]
+        filename = hashlib.sha1(sequence.encode()).hexdigest()
 
-    check_results = check(s3_client, 'openvirome.com', filename + '.html')
+        check_results = check(s3_client, 'openvirome.com', filename + '.html')
 
-    # if yes get link of it back
-    if not check_results:
-        # if no, go to lambda in AWS and make docker create the report
+        # send the report link to the user
+        return {"url": "https://s3.amazonaws.com/openvirome.com/" + filename + ".html"}
+    finally:
 
-        pass
-        report = None
-        # wait till u get response from docker in form of the report
+        if not check_results:
+            # if no report is present in S3, go to lambda in AWS and make docker create the report
 
-
-    # send the report link to the user
-    return {"url": "https://s3.amazonaws.com/openvirome.com/" + filename + ".html"}
+            pass
+            report = None
+            # wait till u get response from docker in form of the report
 
 
